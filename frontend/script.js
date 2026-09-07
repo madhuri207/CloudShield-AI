@@ -7,6 +7,74 @@ const API_BASE_URL = "http://127.0.0.1:8000";
 
 
 // ======================================================
+// BACKEND HEALTH CHECK
+// ======================================================
+
+async function checkBackendHealth() {
+
+    const statusBox =
+        document.querySelector(".system-status");
+
+    if (!statusBox) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${API_BASE_URL}/health`
+        );
+
+        if (!response.ok) {
+            throw new Error("Backend health check failed");
+        }
+
+        const data =
+            await response.json();
+
+        if (data.status === "healthy") {
+
+            statusBox.innerHTML = `
+                <span
+                    class="status-dot"
+                    style="background:#22c55e;"
+                ></span>
+                System Online
+            `;
+
+        } else {
+
+            statusBox.innerHTML = `
+                <span
+                    class="status-dot"
+                    style="background:#dc2626;"
+                ></span>
+                System Offline
+            `;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Backend health check error:",
+            error
+        );
+
+        statusBox.innerHTML = `
+            <span
+                class="status-dot"
+                style="background:#dc2626;"
+            ></span>
+            System Offline
+        `;
+
+    }
+
+}
+
+
+// ======================================================
 // MONITORING CHART DATA
 // ======================================================
 
@@ -32,13 +100,16 @@ function createMonitoringChart() {
     }
 
     if (typeof Chart === "undefined") {
-        console.error("Chart.js library is not loaded.");
+
+        console.error(
+            "Chart.js library is not loaded."
+        );
+
         return;
     }
 
     const context =
         canvas.getContext("2d");
-
 
     monitoringChart = new Chart(context, {
 
@@ -135,10 +206,8 @@ function updateMonitoringChart(
         return;
     }
 
-
     const currentTime =
         new Date().toLocaleTimeString();
-
 
     chartLabels.push(currentTime);
 
@@ -149,7 +218,8 @@ function updateMonitoringChart(
     diskData.push(disk);
 
 
-    // Keep latest 10 readings
+    // Keep only latest 10 readings
+
     if (chartLabels.length > 10) {
 
         chartLabels.shift();
@@ -162,24 +232,24 @@ function updateMonitoringChart(
 
     }
 
-
     monitoringChart.update("none");
 
 }
 
 
 // ======================================================
-// APPLY RISK STYLE
+// APPLY OVERALL RISK STYLE
 // ======================================================
 
-function applyRiskStyle(element, risk) {
+function applyRiskStyle(
+    element,
+    risk
+) {
 
     if (!element) {
         return;
     }
 
-
-    // Remove previous risk classes
     element.classList.remove(
         "risk-low",
         "risk-medium",
@@ -187,12 +257,9 @@ function applyRiskStyle(element, risk) {
         "risk-critical"
     );
 
-
     const normalizedRisk =
         String(risk).toLowerCase();
 
-
-    // Add correct risk class
     if (normalizedRisk === "low") {
 
         element.classList.add(
@@ -241,12 +308,10 @@ function applyAIStatusStyle(
         return;
     }
 
-
     element.classList.remove(
         "ai-normal",
         "ai-anomaly"
     );
-
 
     if (isAnomaly) {
 
@@ -268,6 +333,48 @@ function applyAIStatusStyle(
 
 
 // ======================================================
+// GET SECURITY RISK BADGE CLASS
+// ======================================================
+
+function getRiskBadgeClass(risk) {
+
+    const normalizedRisk =
+        String(risk).toLowerCase();
+
+
+    if (normalizedRisk === "low") {
+
+        return "risk-badge-low";
+
+    }
+
+    if (normalizedRisk === "medium") {
+
+        return "risk-badge-medium";
+
+    }
+
+    if (normalizedRisk === "high") {
+
+        return "risk-badge-high";
+
+    }
+
+    if (normalizedRisk === "critical") {
+
+        return "risk-badge-critical";
+
+    }
+
+
+    // Default
+
+    return "risk-badge-low";
+
+}
+
+
+// ======================================================
 // LOAD SECURITY LOGS
 // ======================================================
 
@@ -279,7 +386,6 @@ async function loadSecurityLogs() {
             `${API_BASE_URL}/security-logs`
         );
 
-
         if (!response.ok) {
 
             throw new Error(
@@ -287,7 +393,6 @@ async function loadSecurityLogs() {
             );
 
         }
-
 
         const data =
             await response.json();
@@ -299,7 +404,6 @@ async function loadSecurityLogs() {
 
         const analysis =
             data.security_analysis;
-
 
         const summary =
             analysis.risk_summary;
@@ -314,18 +418,15 @@ async function loadSecurityLogs() {
             .textContent =
             summary.critical;
 
-
         document
             .getElementById("high-count")
             .textContent =
             summary.high;
 
-
         document
             .getElementById("medium-count")
             .textContent =
             summary.medium;
-
 
         document
             .getElementById("low-count")
@@ -341,7 +442,6 @@ async function loadSecurityLogs() {
             document.getElementById(
                 "security-log-table"
             );
-
 
         table.innerHTML = "";
 
@@ -377,6 +477,12 @@ async function loadSecurityLogs() {
                     document.createElement("tr");
 
 
+                const badgeClass =
+                    getRiskBadgeClass(
+                        log.risk
+                    );
+
+
                 row.innerHTML = `
                     <td>${log.id}</td>
 
@@ -389,7 +495,9 @@ async function loadSecurityLogs() {
                     </td>
 
                     <td>
-                        ${log.risk}
+                        <span class="risk-badge ${badgeClass}">
+                            ${log.risk}
+                        </span>
                     </td>
 
                     <td>
@@ -403,6 +511,7 @@ async function loadSecurityLogs() {
             });
 
     }
+
 
     catch (error) {
 
@@ -560,6 +669,10 @@ async function loadDashboardData() {
             aiResult.message;
 
 
+        // ==================================================
+        // ANOMALY SCORE
+        // ==================================================
+
         if (
             aiResult.anomaly_score !== undefined
         ) {
@@ -578,6 +691,7 @@ async function loadDashboardData() {
 
 
         // Apply AI status style
+
         applyAIStatusStyle(
             aiStatus,
             aiResult.anomaly
@@ -602,7 +716,8 @@ async function loadDashboardData() {
             overallRisk;
 
 
-        // Apply risk colour
+        // Apply overall risk colour
+
         applyRiskStyle(
             riskElement,
             overallRisk
@@ -617,32 +732,32 @@ async function loadDashboardData() {
             overview.security;
 
 
-        const summary =
+        const securitySummary =
             security.risk_summary;
 
 
         document
             .getElementById("critical-count")
             .textContent =
-            summary.critical;
+            securitySummary.critical;
 
 
         document
             .getElementById("high-count")
             .textContent =
-            summary.high;
+            securitySummary.high;
 
 
         document
             .getElementById("medium-count")
             .textContent =
-            summary.medium;
+            securitySummary.medium;
 
 
         document
             .getElementById("low-count")
             .textContent =
-            summary.low;
+            securitySummary.low;
 
 
         // ==================================================
@@ -712,10 +827,8 @@ function formatTime(timestamp) {
         return "--";
     }
 
-
     const date =
         new Date(timestamp);
-
 
     return date.toLocaleString();
 
@@ -730,7 +843,17 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
+        // Create chart
+
         createMonitoringChart();
+
+
+        // Check backend
+
+        checkBackendHealth();
+
+
+        // Load dashboard
 
         loadDashboardData();
 
@@ -739,12 +862,24 @@ document.addEventListener(
 
 
 // ======================================================
-// AUTOMATIC REFRESH
+// AUTOMATIC DASHBOARD REFRESH
 // ======================================================
 
-// Refresh dashboard every 30 seconds
+// Dashboard data refreshes every 30 seconds
 
 setInterval(
     loadDashboardData,
+    30000
+);
+
+
+// ======================================================
+// AUTOMATIC BACKEND HEALTH CHECK
+// ======================================================
+
+// Backend health check every 30 seconds
+
+setInterval(
+    checkBackendHealth,
     30000
 );
