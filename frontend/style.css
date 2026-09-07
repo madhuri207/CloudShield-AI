@@ -325,6 +325,30 @@ body {
 
 
 /* =====================================================
+   SECURITY SUMMARY RISK COLORS
+===================================================== */
+
+.security-summary .critical-risk strong {
+    color: #dc2626;
+}
+
+
+.security-summary .high-risk strong {
+    color: #ea580c;
+}
+
+
+.security-summary .medium-risk strong {
+    color: #ca8a04;
+}
+
+
+.security-summary .low-risk strong {
+    color: #16a34a;
+}
+
+
+/* =====================================================
    MONITORING CHART
 ===================================================== */
 
@@ -479,6 +503,7 @@ footer {
 
 }
 
+
 /* =====================================================
    SECURITY RISK BADGES
 ===================================================== */
@@ -492,20 +517,24 @@ footer {
     text-transform: uppercase;
 }
 
+
 .risk-badge-low {
     color: #16a34a;
     background: #dcfce7;
 }
+
 
 .risk-badge-medium {
     color: #ca8a04;
     background: #fef9c3;
 }
 
+
 .risk-badge-high {
     color: #ea580c;
     background: #ffedd5;
 }
+
 
 .risk-badge-critical {
     color: #dc2626;

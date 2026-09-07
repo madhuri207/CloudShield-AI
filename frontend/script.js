@@ -2,8 +2,19 @@
 // CloudShield AI - Frontend Dashboard
 // ======================================================
 
-// Backend API address
 const API_BASE_URL = "http://127.0.0.1:8000";
+
+
+// ======================================================
+// MONITORING CHART DATA
+// ======================================================
+
+let monitoringChart = null;
+
+let chartLabels = [];
+let cpuData = [];
+let memoryData = [];
+let diskData = [];
 
 
 // ======================================================
@@ -54,7 +65,9 @@ async function checkBackendHealth() {
 
         }
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Backend health check error:",
@@ -72,18 +85,6 @@ async function checkBackendHealth() {
     }
 
 }
-
-
-// ======================================================
-// MONITORING CHART DATA
-// ======================================================
-
-let monitoringChart = null;
-
-let chartLabels = [];
-let cpuData = [];
-let memoryData = [];
-let diskData = [];
 
 
 // ======================================================
@@ -218,7 +219,7 @@ function updateMonitoringChart(
     diskData.push(disk);
 
 
-    // Keep only latest 10 readings
+    // Keep latest 10 readings
 
     if (chartLabels.length > 10) {
 
@@ -260,35 +261,28 @@ function applyRiskStyle(
     const normalizedRisk =
         String(risk).toLowerCase();
 
+
     if (normalizedRisk === "low") {
 
-        element.classList.add(
-            "risk-low"
-        );
+        element.classList.add("risk-low");
 
     }
 
     else if (normalizedRisk === "medium") {
 
-        element.classList.add(
-            "risk-medium"
-        );
+        element.classList.add("risk-medium");
 
     }
 
     else if (normalizedRisk === "high") {
 
-        element.classList.add(
-            "risk-high"
-        );
+        element.classList.add("risk-high");
 
     }
 
     else if (normalizedRisk === "critical") {
 
-        element.classList.add(
-            "risk-critical"
-        );
+        element.classList.add("risk-critical");
 
     }
 
@@ -313,6 +307,7 @@ function applyAIStatusStyle(
         "ai-anomaly"
     );
 
+
     if (isAnomaly) {
 
         element.classList.add(
@@ -333,7 +328,72 @@ function applyAIStatusStyle(
 
 
 // ======================================================
-// GET SECURITY RISK BADGE CLASS
+// APPLY SECURITY SUMMARY COLORS
+// ======================================================
+
+function applySecuritySummaryStyles() {
+
+    const critical =
+        document.getElementById(
+            "critical-count"
+        );
+
+    const high =
+        document.getElementById(
+            "high-count"
+        );
+
+    const medium =
+        document.getElementById(
+            "medium-count"
+        );
+
+    const low =
+        document.getElementById(
+            "low-count"
+        );
+
+
+    if (critical) {
+
+        critical.parentElement.classList.add(
+            "critical-risk"
+        );
+
+    }
+
+
+    if (high) {
+
+        high.parentElement.classList.add(
+            "high-risk"
+        );
+
+    }
+
+
+    if (medium) {
+
+        medium.parentElement.classList.add(
+            "medium-risk"
+        );
+
+    }
+
+
+    if (low) {
+
+        low.parentElement.classList.add(
+            "low-risk"
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// GET SECURITY LOG RISK BADGE
 // ======================================================
 
 function getRiskBadgeClass(risk) {
@@ -343,31 +403,20 @@ function getRiskBadgeClass(risk) {
 
 
     if (normalizedRisk === "low") {
-
         return "risk-badge-low";
-
     }
 
     if (normalizedRisk === "medium") {
-
         return "risk-badge-medium";
-
     }
 
     if (normalizedRisk === "high") {
-
         return "risk-badge-high";
-
     }
 
     if (normalizedRisk === "critical") {
-
         return "risk-badge-critical";
-
     }
-
-
-    // Default
 
     return "risk-badge-low";
 
@@ -386,6 +435,7 @@ async function loadSecurityLogs() {
             `${API_BASE_URL}/security-logs`
         );
 
+
         if (!response.ok) {
 
             throw new Error(
@@ -394,16 +444,14 @@ async function loadSecurityLogs() {
 
         }
 
+
         const data =
             await response.json();
 
 
-        // ==================================================
-        // SECURITY ANALYSIS
-        // ==================================================
-
         const analysis =
             data.security_analysis;
+
 
         const summary =
             analysis.risk_summary;
@@ -418,20 +466,27 @@ async function loadSecurityLogs() {
             .textContent =
             summary.critical;
 
+
         document
             .getElementById("high-count")
             .textContent =
             summary.high;
+
 
         document
             .getElementById("medium-count")
             .textContent =
             summary.medium;
 
+
         document
             .getElementById("low-count")
             .textContent =
             summary.low;
+
+
+        // Apply colors
+        applySecuritySummaryStyles();
 
 
         // ==================================================
@@ -442,6 +497,7 @@ async function loadSecurityLogs() {
             document.getElementById(
                 "security-log-table"
             );
+
 
         table.innerHTML = "";
 
@@ -484,7 +540,10 @@ async function loadSecurityLogs() {
 
 
                 row.innerHTML = `
-                    <td>${log.id}</td>
+
+                    <td>
+                        ${log.id}
+                    </td>
 
                     <td>
                         ${formatTime(log.time)}
@@ -495,7 +554,9 @@ async function loadSecurityLogs() {
                     </td>
 
                     <td>
-                        <span class="risk-badge ${badgeClass}">
+                        <span
+                            class="risk-badge ${badgeClass}"
+                        >
                             ${log.risk}
                         </span>
                     </td>
@@ -503,6 +564,7 @@ async function loadSecurityLogs() {
                     <td>
                         ${log.message}
                     </td>
+
                 `;
 
 
@@ -541,7 +603,7 @@ async function loadSecurityLogs() {
 
 
 // ======================================================
-// LOAD COMPLETE DASHBOARD DATA
+// LOAD DASHBOARD DATA
 // ======================================================
 
 async function loadDashboardData() {
@@ -549,26 +611,26 @@ async function loadDashboardData() {
     try {
 
         // ==================================================
-        // GET SECURITY OVERVIEW
+        // SECURITY OVERVIEW
         // ==================================================
 
-        const overviewResponse =
+        const response =
             await fetch(
                 `${API_BASE_URL}/security-overview`
             );
 
 
-        if (!overviewResponse.ok) {
+        if (!response.ok) {
 
             throw new Error(
-                "Security overview API request failed"
+                "Security overview request failed"
             );
 
         }
 
 
-        const overview =
-            await overviewResponse.json();
+        const data =
+            await response.json();
 
 
         // ==================================================
@@ -576,7 +638,7 @@ async function loadDashboardData() {
         // ==================================================
 
         const metrics =
-            overview.system.metrics;
+            data.system.metrics;
 
 
         const cpu =
@@ -592,7 +654,7 @@ async function loadDashboardData() {
 
 
         // ==================================================
-        // DISPLAY SYSTEM METRICS
+        // DISPLAY CPU
         // ==================================================
 
         document
@@ -601,11 +663,19 @@ async function loadDashboardData() {
             `${cpu.toFixed(1)}%`;
 
 
+        // ==================================================
+        // DISPLAY MEMORY
+        // ==================================================
+
         document
             .getElementById("memory-value")
             .textContent =
             `${memory.toFixed(1)}%`;
 
+
+        // ==================================================
+        // DISPLAY DISK
+        // ==================================================
 
         document
             .getElementById("disk-value")
@@ -625,11 +695,11 @@ async function loadDashboardData() {
 
 
         // ==================================================
-        // AI RESULT
+        // AI ANALYSIS
         // ==================================================
 
         const aiResult =
-            overview.system.analysis;
+            data.system.analysis;
 
 
         const aiStatus =
@@ -669,10 +739,6 @@ async function loadDashboardData() {
             aiResult.message;
 
 
-        // ==================================================
-        // ANOMALY SCORE
-        // ==================================================
-
         if (
             aiResult.anomaly_score !== undefined
         ) {
@@ -690,7 +756,7 @@ async function loadDashboardData() {
         }
 
 
-        // Apply AI status style
+        // Apply AI color
 
         applyAIStatusStyle(
             aiStatus,
@@ -703,7 +769,7 @@ async function loadDashboardData() {
         // ==================================================
 
         const overallRisk =
-            overview.overall_risk.overall_risk;
+            data.overall_risk.overall_risk;
 
 
         const riskElement =
@@ -716,8 +782,6 @@ async function loadDashboardData() {
             overallRisk;
 
 
-        // Apply overall risk colour
-
         applyRiskStyle(
             riskElement,
             overallRisk
@@ -729,39 +793,44 @@ async function loadDashboardData() {
         // ==================================================
 
         const security =
-            overview.security;
+            data.security;
 
 
-        const securitySummary =
+        const summary =
             security.risk_summary;
 
 
         document
             .getElementById("critical-count")
             .textContent =
-            securitySummary.critical;
+            summary.critical;
 
 
         document
             .getElementById("high-count")
             .textContent =
-            securitySummary.high;
+            summary.high;
 
 
         document
             .getElementById("medium-count")
             .textContent =
-            securitySummary.medium;
+            summary.medium;
 
 
         document
             .getElementById("low-count")
             .textContent =
-            securitySummary.low;
+            summary.low;
+
+
+        // Apply security summary colors
+
+        applySecuritySummaryStyles();
 
 
         // ==================================================
-        // SECURITY LOG TABLE
+        // LOAD SECURITY LOG TABLE
         // ==================================================
 
         await loadSecurityLogs();
@@ -772,7 +841,7 @@ async function loadDashboardData() {
     catch (error) {
 
         console.error(
-            "Error loading CloudShield dashboard:",
+            "CloudShield dashboard error:",
             error
         );
 
@@ -818,7 +887,7 @@ async function loadDashboardData() {
 
 
 // ======================================================
-// FORMAT TIMESTAMP
+// FORMAT TIME
 // ======================================================
 
 function formatTime(timestamp) {
@@ -827,8 +896,10 @@ function formatTime(timestamp) {
         return "--";
     }
 
+
     const date =
         new Date(timestamp);
+
 
     return date.toLocaleString();
 
@@ -843,17 +914,9 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        // Create chart
-
         createMonitoringChart();
 
-
-        // Check backend
-
         checkBackendHealth();
-
-
-        // Load dashboard
 
         loadDashboardData();
 
@@ -862,10 +925,10 @@ document.addEventListener(
 
 
 // ======================================================
-// AUTOMATIC DASHBOARD REFRESH
+// AUTOMATIC REFRESH
 // ======================================================
 
-// Dashboard data refreshes every 30 seconds
+// Dashboard data every 30 seconds
 
 setInterval(
     loadDashboardData,
@@ -873,11 +936,7 @@ setInterval(
 );
 
 
-// ======================================================
-// AUTOMATIC BACKEND HEALTH CHECK
-// ======================================================
-
-// Backend health check every 30 seconds
+// Backend health every 30 seconds
 
 setInterval(
     checkBackendHealth,
