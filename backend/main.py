@@ -13,6 +13,8 @@ from ai.anomaly_detector import detect_anomaly
 
 from security.threat_detector import analyze_security_event
 
+from security.log_analyzer import analyze_security_logs
+
 
 app = FastAPI(
     title="CloudShield AI",
@@ -110,8 +112,12 @@ def security_logs():
     # Get saved security events
     logs = get_security_logs()
 
+    # Analyze all security logs
+    analysis = analyze_security_logs(logs)
+
     return {
         "status": "success",
         "total_logs": len(logs),
+        "security_analysis": analysis,
         "security_logs": logs
     }
