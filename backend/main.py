@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from monitoring.system_monitor import get_system_metrics
@@ -29,24 +30,42 @@ app = FastAPI(
 )
 
 
-# Create database when application starts
+# =========================================================
+# CORS CONFIGURATION
+# =========================================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+
+# =========================================================
+# DATABASE INITIALIZATION
+# =========================================================
+
 create_database()
 
 
-# Security event input model
+# =========================================================
+# INPUT MODELS
+# =========================================================
+
 class SecurityEvent(BaseModel):
     event_type: str
     failed_attempts: int = 0
 
 
-# Security log input model
 class SecurityLog(BaseModel):
     log_message: str
 
 
-# ---------------------------------------------------------
+# =========================================================
 # ROOT ENDPOINT
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get("/")
 def root():
@@ -58,9 +77,9 @@ def root():
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # HEALTH CHECK
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get("/health")
 def health_check():
@@ -71,9 +90,9 @@ def health_check():
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # SYSTEM MONITORING
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get("/monitoring")
 def monitoring():
@@ -98,7 +117,7 @@ def monitoring():
         disk
     )
 
-    # Save metrics into database
+    # Save monitoring metrics
     save_metrics(
         metrics["timestamp"],
         cpu,
@@ -115,9 +134,9 @@ def monitoring():
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # SECURITY TEST
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get("/security-test")
 def security_test(
@@ -131,7 +150,7 @@ def security_test(
         failed_attempts=failed_attempts
     )
 
-    # Save security event into database
+    # Save security event
     save_security_event(
         security_result["timestamp"],
         security_result["event_type"],
@@ -145,9 +164,9 @@ def security_test(
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # SECURITY EVENT API
-# ---------------------------------------------------------
+# =========================================================
 
 @app.post("/security-events")
 def create_security_event(event: SecurityEvent):
@@ -158,7 +177,7 @@ def create_security_event(event: SecurityEvent):
         failed_attempts=event.failed_attempts
     )
 
-    # Save security event into database
+    # Save security event
     save_security_event(
         security_result["timestamp"],
         security_result["event_type"],
@@ -173,9 +192,9 @@ def create_security_event(event: SecurityEvent):
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # SECURITY LOGS
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get("/security-logs")
 def security_logs():
@@ -194,9 +213,9 @@ def security_logs():
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # SECURITY OVERVIEW
-# ---------------------------------------------------------
+# =========================================================
 
 @app.get("/security-overview")
 def security_overview():
@@ -241,19 +260,19 @@ def security_overview():
     }
 
 
-# ---------------------------------------------------------
+# =========================================================
 # RAW SECURITY LOG ANALYSIS
-# ---------------------------------------------------------
+# =========================================================
 
 @app.post("/analyze-log")
 def analyze_security_log(log: SecurityLog):
 
-    # Analyze the submitted security log
+    # Analyze submitted security log
     result = analyze_log(
         log.log_message
     )
 
-    # Save analyzed security event into database
+    # Save analyzed security event
     save_security_event(
         result["timestamp"],
         result["event_type"],

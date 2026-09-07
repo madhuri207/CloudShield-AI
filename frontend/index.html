@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CloudShield AI</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>CloudShield AI</h2>
+
+            <p>Cloud Security Platform</p>
+
+        </div>
+
+
+        <nav>
+
+            <a href="#" class="active">
+                Dashboard
+            </a>
+
+            <a href="#">
+                Monitoring
+            </a>
+
+            <a href="#">
+                Security Logs
+            </a>
+
+            <a href="#">
+                Incidents
+            </a>
+
+            <a href="#">
+                Reports
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <p>AI-Powered Security</p>
+
+            <span>v1.0</span>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Security Dashboard</h1>
+
+                <p>
+                    Cloud infrastructure and security monitoring
+                </p>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                System Online
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =========================
+             OVERVIEW CARDS
+        ========================== -->
+
+        <section class="overview-cards">
+
+
+            <!-- CPU -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    CPU Usage
+                </div>
+
+                <div class="card-value" id="cpu-value">
+                    --
+                </div>
+
+                <div class="card-subtitle">
+                    Current usage
+                </div>
+
+            </div>
+
+
+
+            <!-- MEMORY -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    Memory Usage
+                </div>
+
+                <div class="card-value" id="memory-value">
+                    --
+                </div>
+
+                <div class="card-subtitle">
+                    Current usage
+                </div>
+
+            </div>
+
+
+
+            <!-- DISK -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    Disk Usage
+                </div>
+
+                <div class="card-value" id="disk-value">
+                    --
+                </div>
+
+                <div class="card-subtitle">
+                    Current usage
+                </div>
+
+            </div>
+
+
+
+            <!-- OVERALL RISK -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    Overall Risk
+                </div>
+
+                <div class="card-value risk-value" id="risk-value">
+                    --
+                </div>
+
+                <div class="card-subtitle">
+                    Security status
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             AI + SECURITY
+        ========================== -->
+
+        <section class="analysis-grid">
+
+
+            <!-- AI ANOMALY -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h2>
+                        AI Anomaly Detection
+                    </h2>
+
+                </div>
+
+
+                <div class="analysis-content">
+
+                    <div
+                        class="analysis-status"
+                        id="ai-status"
+                    >
+                        Waiting for data...
+                    </div>
+
+
+                    <p id="ai-message">
+
+                        The AI model analysis will appear here.
+
+                    </p>
+
+
+                    <div class="score">
+
+                        Anomaly Score:
+
+                        <strong id="anomaly-score">
+                            --
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SECURITY ANALYSIS -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h2>
+                        Security Analysis
+                    </h2>
+
+                </div>
+
+
+                <div class="security-summary">
+
+
+                    <div>
+
+                        <span>
+                            Critical
+                        </span>
+
+                        <strong id="critical-count">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            High
+                        </span>
+
+                        <strong id="high-count">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Medium
+                        </span>
+
+                        <strong id="medium-count">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Low
+                        </span>
+
+                        <strong id="low-count">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             MONITORING CHART
+        ========================== -->
+
+        <section class="panel chart-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        System Monitoring
+                    </h2>
+
+                    <p>
+                        CPU, memory and disk usage
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-container">
+
+                <canvas id="monitoringChart"></canvas>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             SECURITY LOGS
+        ========================== -->
+
+        <section class="panel logs-panel">
+
+
+            <div class="panel-header">
+
+
+                <div>
+
+                    <h2>
+                        Recent Security Logs
+                    </h2>
+
+                    <p>
+                        Latest security events detected by CloudShield AI
+                    </p>
+
+                </div>
+
+
+                <button onclick="loadSecurityLogs()">
+
+                    Refresh Logs
+
+                </button>
+
+
+            </div>
+
+
+
+            <div class="table-container">
+
+
+                <table>
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                Event Type
+                            </th>
+
+                            <th>
+                                Risk
+                            </th>
+
+                            <th>
+                                Message
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody id="security-log-table">
+
+
+                        <tr>
+
+                            <td colspan="5">
+
+                                Loading security logs...
+
+                            </td>
+
+                        </tr>
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             FOOTER
+        ========================== -->
+
+        <footer>
+
+            <p>
+
+                CloudShield AI —
+                Intelligent Cloud Security Monitoring Platform
+
+            </p>
+
+        </footer>
+
+
+    </main>
+
+
+
+    <!-- =========================
+         CHART.JS
+    ========================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <!-- =========================
+         CLOUDSHIELD JAVASCRIPT
+    ========================== -->
+
+    <script src="script.js"></script>
+
+
+</body>
+
+</html>
