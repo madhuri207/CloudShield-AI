@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 from monitoring.system_monitor import get_system_metrics
 
@@ -27,6 +28,12 @@ app = FastAPI(
 
 # Create database when application starts
 create_database()
+
+
+# Security event input model
+class SecurityEvent(BaseModel):
+    event_type: str
+    failed_attempts: int = 0
 
 
 @app.get("/")
@@ -104,6 +111,30 @@ def security_test(
 
     return {
         "status": "success",
+        "security_analysis": security_result
+    }
+
+
+@app.post("/security-events")
+def create_security_event(event: SecurityEvent):
+
+    # Analyze received security event
+    security_result = analyze_security_event(
+        event_type=event.event_type,
+        failed_attempts=event.failed_attempts
+    )
+
+    # Save security event into database
+    save_security_event(
+        security_result["timestamp"],
+        security_result["event_type"],
+        security_result["risk"],
+        security_result["message"]
+    )
+
+    return {
+        "status": "success",
+        "message": "Security event processed successfully",
         "security_analysis": security_result
     }
 
