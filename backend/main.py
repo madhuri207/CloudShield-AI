@@ -14,7 +14,10 @@ from ai.anomaly_detector import detect_anomaly
 
 from security.threat_detector import analyze_security_event
 
-from security.log_analyzer import analyze_security_logs
+from security.log_analyzer import (
+    analyze_security_logs,
+    analyze_log
+)
 
 from security.risk_engine import calculate_overall_risk
 
@@ -36,8 +39,18 @@ class SecurityEvent(BaseModel):
     failed_attempts: int = 0
 
 
+# Security log input model
+class SecurityLog(BaseModel):
+    log_message: str
+
+
+# ---------------------------------------------------------
+# ROOT ENDPOINT
+# ---------------------------------------------------------
+
 @app.get("/")
 def root():
+
     return {
         "project": "CloudShield AI",
         "status": "running",
@@ -45,13 +58,22 @@ def root():
     }
 
 
+# ---------------------------------------------------------
+# HEALTH CHECK
+# ---------------------------------------------------------
+
 @app.get("/health")
 def health_check():
+
     return {
         "status": "healthy",
         "service": "CloudShield AI backend"
     }
 
+
+# ---------------------------------------------------------
+# SYSTEM MONITORING
+# ---------------------------------------------------------
 
 @app.get("/monitoring")
 def monitoring():
@@ -70,7 +92,11 @@ def monitoring():
         alert = "NORMAL"
 
     # AI anomaly detection
-    ai_result = detect_anomaly(cpu, memory, disk)
+    ai_result = detect_anomaly(
+        cpu,
+        memory,
+        disk
+    )
 
     # Save metrics into database
     save_metrics(
@@ -88,6 +114,10 @@ def monitoring():
         "ai_result": ai_result
     }
 
+
+# ---------------------------------------------------------
+# SECURITY TEST
+# ---------------------------------------------------------
 
 @app.get("/security-test")
 def security_test(
@@ -115,6 +145,10 @@ def security_test(
     }
 
 
+# ---------------------------------------------------------
+# SECURITY EVENT API
+# ---------------------------------------------------------
+
 @app.post("/security-events")
 def create_security_event(event: SecurityEvent):
 
@@ -139,6 +173,10 @@ def create_security_event(event: SecurityEvent):
     }
 
 
+# ---------------------------------------------------------
+# SECURITY LOGS
+# ---------------------------------------------------------
+
 @app.get("/security-logs")
 def security_logs():
 
@@ -155,6 +193,10 @@ def security_logs():
         "security_logs": logs
     }
 
+
+# ---------------------------------------------------------
+# SECURITY OVERVIEW
+# ---------------------------------------------------------
 
 @app.get("/security-overview")
 def security_overview():
@@ -187,10 +229,40 @@ def security_overview():
 
     return {
         "status": "success",
+
         "system": {
             "metrics": metrics,
             "analysis": system_result
         },
+
         "security": security_result,
+
         "overall_risk": overall_result
+    }
+
+
+# ---------------------------------------------------------
+# RAW SECURITY LOG ANALYSIS
+# ---------------------------------------------------------
+
+@app.post("/analyze-log")
+def analyze_security_log(log: SecurityLog):
+
+    # Analyze the submitted security log
+    result = analyze_log(
+        log.log_message
+    )
+
+    # Save analyzed security event into database
+    save_security_event(
+        result["timestamp"],
+        result["event_type"],
+        result["risk"],
+        result["message"]
+    )
+
+    return {
+        "status": "success",
+        "message": "Security log analyzed and saved successfully",
+        "analysis": result
     }
