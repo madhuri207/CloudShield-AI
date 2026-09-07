@@ -15,6 +15,8 @@ from security.threat_detector import analyze_security_event
 
 from security.log_analyzer import analyze_security_logs
 
+from security.risk_engine import calculate_overall_risk
+
 
 app = FastAPI(
     title="CloudShield AI",
@@ -120,4 +122,44 @@ def security_logs():
         "total_logs": len(logs),
         "security_analysis": analysis,
         "security_logs": logs
+    }
+
+
+@app.get("/security-overview")
+def security_overview():
+
+    # Collect current system metrics
+    metrics = get_system_metrics()
+
+    cpu = metrics["cpu_percent"]
+    memory = metrics["memory_percent"]
+    disk = metrics["disk_percent"]
+
+    # Analyze current system behaviour
+    system_result = detect_anomaly(
+        cpu,
+        memory,
+        disk
+    )
+
+    # Get security history
+    logs = get_security_logs()
+
+    # Analyze security history
+    security_result = analyze_security_logs(logs)
+
+    # Calculate combined overall risk
+    overall_result = calculate_overall_risk(
+        system_result,
+        security_result
+    )
+
+    return {
+        "status": "success",
+        "system": {
+            "metrics": metrics,
+            "analysis": system_result
+        },
+        "security": security_result,
+        "overall_risk": overall_result
     }
