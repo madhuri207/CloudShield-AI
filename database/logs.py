@@ -82,3 +82,32 @@ def save_security_event(timestamp, event_type, risk, message):
 
     conn.commit()
     conn.close()
+
+
+def get_security_logs():
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, time, event_type, risk, message
+        FROM security_logs
+        ORDER BY id DESC
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    logs = []
+
+    for row in rows:
+        logs.append({
+            "id": row[0],
+            "time": row[1],
+            "event_type": row[2],
+            "risk": row[3],
+            "message": row[4]
+        })
+
+    return logs

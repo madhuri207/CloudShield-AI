@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 
 from monitoring.system_monitor import get_system_metrics
+
 from database.logs import (
     save_metrics,
     save_security_event,
-    create_database
+    create_database,
+    get_security_logs
 )
+
 from ai.anomaly_detector import detect_anomaly
+
 from security.threat_detector import analyze_security_event
 
 
@@ -97,4 +101,17 @@ def security_test(
     return {
         "status": "success",
         "security_analysis": security_result
+    }
+
+
+@app.get("/security-logs")
+def security_logs():
+
+    # Get saved security events
+    logs = get_security_logs()
+
+    return {
+        "status": "success",
+        "total_logs": len(logs),
+        "security_logs": logs
     }
