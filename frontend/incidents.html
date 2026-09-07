@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CloudShield AI - Incidents</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>CloudShield AI</h2>
+
+            <p>Cloud Security Platform</p>
+
+        </div>
+
+
+        <nav>
+
+            <a href="index.html">
+                Dashboard
+            </a>
+
+            <a href="monitoring.html">
+                Monitoring
+            </a>
+
+            <a href="security-logs.html">
+                Security Logs
+            </a>
+
+            <a href="incidents.html" class="active">
+                Incidents
+            </a>
+
+            <a href="reports.html">
+                Reports
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <p>AI-Powered Security</p>
+
+            <span>v1.0</span>
+
+        </div>
+
+    </aside>
+
+
+
+    <main class="main-content">
+
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Security Incidents</h1>
+
+                <p>
+                    Detected security incidents and their current status
+                </p>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                System Online
+
+            </div>
+
+        </header>
+
+
+
+        <section class="overview-cards">
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Critical Incidents
+                </div>
+
+                <div
+                    class="card-value risk-critical"
+                    id="critical-incidents"
+                >
+                    0
+                </div>
+
+                <div class="card-subtitle">
+                    Critical security incidents
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    High Risk Incidents
+                </div>
+
+                <div
+                    class="card-value risk-high"
+                    id="high-incidents"
+                >
+                    0
+                </div>
+
+                <div class="card-subtitle">
+                    High risk security incidents
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Medium Risk Incidents
+                </div>
+
+                <div
+                    class="card-value risk-medium"
+                    id="medium-incidents"
+                >
+                    0
+                </div>
+
+                <div class="card-subtitle">
+                    Medium risk incidents
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Incidents
+                </div>
+
+                <div
+                    class="card-value"
+                    id="total-incidents"
+                >
+                    0
+                </div>
+
+                <div class="card-subtitle">
+                    Detected security incidents
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Incident Management
+                    </h2>
+
+                    <p>
+                        Security events requiring attention
+                    </p>
+
+                </div>
+
+
+                <button onclick="loadIncidents()">
+
+                    Refresh Incidents
+
+                </button>
+
+            </div>
+
+
+            <div class="analysis-content">
+
+                <p>
+                    CloudShield AI identifies high-risk and critical
+                    security events as incidents for further investigation.
+                </p>
+
+                <p>
+                    Incidents are generated from analyzed security logs
+                    and can be reviewed by the security administrator.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <section class="panel logs-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Active Security Incidents
+                    </h2>
+
+                    <p>
+                        High and critical security events
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Time</th>
+                            <th>Event Type</th>
+                            <th>Risk</th>
+                            <th>Message</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="incident-table">
+
+                        <tr>
+
+                            <td colspan="5">
+                                Loading incidents...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <footer>
+
+            <p>
+
+                CloudShield AI —
+                Intelligent Cloud Security Monitoring Platform
+
+            </p>
+
+        </footer>
+
+
+    </main>
+
+
+
+    <script src="incidents.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CloudShield AI - Reports</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h2>CloudShield AI</h2>
+
+            <p>Cloud Security Platform</p>
+
+        </div>
+
+
+        <nav>
+
+            <a href="index.html">
+                Dashboard
+            </a>
+
+            <a href="monitoring.html">
+                Monitoring
+            </a>
+
+            <a href="security-logs.html">
+                Security Logs
+            </a>
+
+            <a href="incidents.html">
+                Incidents
+            </a>
+
+            <a href="reports.html" class="active">
+                Reports
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <p>AI-Powered Security</p>
+
+            <span>v1.0</span>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Security Reports</h1>
+
+                <p>
+                    Cloud security monitoring and analysis reports
+                </p>
+
+            </div>
+
+
+            <div class="system-status">
+
+                <span class="status-dot"></span>
+
+                System Online
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =========================
+             REPORT SUMMARY
+        ========================== -->
+
+        <section class="overview-cards">
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Total Security Logs
+                </div>
+
+                <div
+                    class="card-value"
+                    id="total-logs"
+                >
+                    0
+                </div>
+
+                <div class="card-subtitle">
+                    Recorded security events
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Critical Events
+                </div>
+
+                <div
+                    class="card-value risk-critical"
+                    id="critical-count"
+                >
+                    0
+                </div>
+
+                <div class="card-subtitle">
+                    Critical security events
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    High Risk Events
+                </div>
+
+                <div
+                    class="card-value risk-high"
+                    id="high-count"
+                >
+                    0
+                </div>
+
+                <div class="card-subtitle">
+                    High risk security events
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Overall Risk
+                </div>
+
+                <div
+                    class="card-value risk-low"
+                    id="overall-risk"
+                >
+                    LOW
+                </div>
+
+                <div class="card-subtitle">
+                    Current security status
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             REPORT INFORMATION
+        ========================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Security Report
+                    </h2>
+
+                    <p>
+                        Summary of CloudShield AI security activity
+                    </p>
+
+                </div>
+
+
+                <button onclick="loadReport()">
+
+                    Refresh Report
+
+                </button>
+
+            </div>
+
+
+            <div class="analysis-content">
+
+                <p>
+                    CloudShield AI analyzes infrastructure metrics
+                    and security events to provide a centralized
+                    security overview.
+                </p>
+
+
+                <p>
+                    This report summarizes detected security events,
+                    their risk levels and the overall security condition.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             RISK DISTRIBUTION
+        ========================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Risk Distribution
+                    </h2>
+
+                    <p>
+                        Security events grouped by risk level
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="security-summary">
+
+
+                <div>
+
+                    <span>
+                        Critical
+                    </span>
+
+                    <strong
+                        id="report-critical"
+                        class="risk-critical"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        High
+                    </span>
+
+                    <strong
+                        id="report-high"
+                        class="risk-high"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Medium
+                    </span>
+
+                    <strong
+                        id="report-medium"
+                        class="risk-medium"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Low
+                    </span>
+
+                    <strong
+                        id="report-low"
+                        class="risk-low"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             EVENT SUMMARY
+        ========================== -->
+
+        <section class="panel logs-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Event Summary
+                    </h2>
+
+                    <p>
+                        Types of security events detected
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Event Type
+                            </th>
+
+                            <th>
+                                Count
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="event-summary-table">
+
+                        <tr>
+
+                            <td colspan="2">
+                                Loading report...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             FOOTER
+        ========================== -->
+
+        <footer>
+
+            <p>
+
+                CloudShield AI —
+                Intelligent Cloud Security Monitoring Platform
+
+            </p>
+
+        </footer>
+
+
+    </main>
+
+
+
+    <!-- =========================
+         REPORT JAVASCRIPT
+    ========================== -->
+
+    <script src="reports.js"></script>
+
+
+</body>
+
+</html>

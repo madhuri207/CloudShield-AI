@@ -7,7 +7,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CloudShield AI</title>
+    <title>CloudShield AI - Security Logs</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -33,7 +33,7 @@
 
         <nav>
 
-            <a href="index.html" class="active">
+            <a href="index.html">
                 Dashboard
             </a>
 
@@ -41,11 +41,11 @@
                 Monitoring
             </a>
 
-            <a href="security-logs.html">
+            <a href="security-logs.html" class="active">
                 Security Logs
             </a>
 
-            <a href="#">
+            <a href="incidents.html">
                 Incidents
             </a>
 
@@ -81,10 +81,10 @@
 
             <div>
 
-                <h1>Security Dashboard</h1>
+                <h1>Security Logs</h1>
 
                 <p>
-                    Cloud infrastructure and security monitoring
+                    Security events detected and analyzed by CloudShield AI
                 </p>
 
             </div>
@@ -103,7 +103,7 @@
 
 
         <!-- =========================
-             OVERVIEW CARDS
+             SECURITY SUMMARY
         ========================== -->
 
         <section class="overview-cards">
@@ -112,66 +112,81 @@
             <div class="card">
 
                 <div class="card-title">
-                    CPU Usage
+                    Critical Events
                 </div>
 
-                <div class="card-value" id="cpu-value">
-                    --
+                <div
+                    class="card-value risk-critical"
+                    id="critical-count"
+                >
+                    0
                 </div>
 
                 <div class="card-subtitle">
-                    Current usage
+                    Critical security events
                 </div>
 
             </div>
 
 
+
             <div class="card">
 
                 <div class="card-title">
-                    Memory Usage
+                    High Risk Events
                 </div>
 
-                <div class="card-value" id="memory-value">
-                    --
+                <div
+                    class="card-value risk-high"
+                    id="high-count"
+                >
+                    0
                 </div>
 
                 <div class="card-subtitle">
-                    Current usage
+                    High risk security events
                 </div>
 
             </div>
 
 
+
             <div class="card">
 
                 <div class="card-title">
-                    Disk Usage
+                    Medium Risk Events
                 </div>
 
-                <div class="card-value" id="disk-value">
-                    --
+                <div
+                    class="card-value risk-medium"
+                    id="medium-count"
+                >
+                    0
                 </div>
 
                 <div class="card-subtitle">
-                    Current usage
+                    Medium risk security events
                 </div>
 
             </div>
 
 
+
             <div class="card">
 
                 <div class="card-title">
-                    Overall Risk
+                    Low Risk Events
                 </div>
 
-                <div class="card-value risk-value" id="risk-value">
-                    --
+                <div
+                    class="card-value risk-low"
+                    id="low-count"
+                >
+                    0
                 </div>
 
                 <div class="card-subtitle">
-                    Security status
+                    Low risk security events
                 </div>
 
             </div>
@@ -181,180 +196,21 @@
 
 
         <!-- =========================
-             AI + SECURITY
+             SECURITY ANALYSIS
         ========================== -->
 
-        <section class="analysis-grid">
+        <section class="panel">
 
+            <div class="panel-header">
 
-            <div class="panel">
-
-                <div class="panel-header">
-
-                    <h2>
-                        AI Anomaly Detection
-                    </h2>
-
-                </div>
-
-
-                <div class="analysis-content">
-
-                    <div
-                        class="analysis-status"
-                        id="ai-status"
-                    >
-                        Waiting for data...
-                    </div>
-
-
-                    <p id="ai-message">
-
-                        The AI model analysis will appear here.
-
-                    </p>
-
-
-                    <div class="score">
-
-                        Anomaly Score:
-
-                        <strong id="anomaly-score">
-                            --
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="panel">
-
-                <div class="panel-header">
+                <div>
 
                     <h2>
                         Security Analysis
                     </h2>
 
-                </div>
-
-
-                <div class="security-summary">
-
-
-                    <div>
-
-                        <span>
-                            Critical
-                        </span>
-
-                        <strong id="critical-count">
-                            0
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            High
-                        </span>
-
-                        <strong id="high-count">
-                            0
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Medium
-                        </span>
-
-                        <strong id="medium-count">
-                            0
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Low
-                        </span>
-
-                        <strong id="low-count">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================
-             MONITORING CHART
-        ========================== -->
-
-        <section class="panel chart-panel">
-
-            <div class="panel-header">
-
-                <div>
-
-                    <h2>
-                        System Monitoring
-                    </h2>
-
                     <p>
-                        CPU, memory and disk usage
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="chart-container">
-
-                <canvas id="monitoringChart"></canvas>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =========================
-             SECURITY LOGS
-        ========================== -->
-
-        <section class="panel logs-panel">
-
-
-            <div class="panel-header">
-
-
-                <div>
-
-                    <h2>
-                        Recent Security Logs
-                    </h2>
-
-                    <p>
-                        Latest security events detected by CloudShield AI
+                        Current security risk based on detected events
                     </p>
 
                 </div>
@@ -366,6 +222,61 @@
 
                 </button>
 
+            </div>
+
+
+            <div class="analysis-content">
+
+                <div class="score">
+
+                    Total Security Logs:
+
+                    <strong id="total-logs">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="score">
+
+                    Overall Security Risk:
+
+                    <strong
+                        id="overall-risk"
+                        class="risk-low"
+                    >
+                        LOW
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =========================
+             SECURITY LOG TABLE
+        ========================== -->
+
+        <section class="panel logs-panel">
+
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Security Event History
+                    </h2>
+
+                    <p>
+                        Latest security events recorded by CloudShield AI
+                    </p>
+
+                </div>
 
             </div>
 
@@ -375,7 +286,6 @@
 
 
                 <table>
-
 
                     <thead>
 
@@ -409,7 +319,6 @@
 
                     <tbody id="security-log-table">
 
-
                         <tr>
 
                             <td colspan="5">
@@ -419,7 +328,6 @@
                             </td>
 
                         </tr>
-
 
                     </tbody>
 
@@ -455,17 +363,10 @@
 
 
     <!-- =========================
-         CHART.JS
+         SECURITY LOG JAVASCRIPT
     ========================== -->
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
-    <!-- =========================
-         CLOUDSHIELD JAVASCRIPT
-    ========================== -->
-
-    <script src="script.js"></script>
+    <script src="security-logs.js"></script>
 
 
 </body>
