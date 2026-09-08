@@ -2,6 +2,7 @@
 // CloudShield AI - Frontend Dashboard
 // ======================================================
 
+
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 
@@ -53,7 +54,9 @@ async function checkBackendHealth() {
                 System Online
             `;
 
-        } else {
+        }
+
+        else {
 
             statusBox.innerHTML = `
                 <span
@@ -393,7 +396,7 @@ function applySecuritySummaryStyles() {
 
 
 // ======================================================
-// GET SECURITY LOG RISK BADGE
+// GET RISK BADGE CLASS
 // ======================================================
 
 function getRiskBadgeClass(risk) {
@@ -461,31 +464,50 @@ async function loadSecurityLogs() {
         // SECURITY COUNTS
         // ==================================================
 
-        document
-            .getElementById("critical-count")
-            .textContent =
-            summary.critical;
+        const criticalCount =
+            document.getElementById(
+                "critical-count"
+            );
+
+        const highCount =
+            document.getElementById(
+                "high-count"
+            );
+
+        const mediumCount =
+            document.getElementById(
+                "medium-count"
+            );
+
+        const lowCount =
+            document.getElementById(
+                "low-count"
+            );
 
 
-        document
-            .getElementById("high-count")
-            .textContent =
-            summary.high;
+        if (criticalCount) {
+            criticalCount.textContent =
+                summary.critical;
+        }
 
+        if (highCount) {
+            highCount.textContent =
+                summary.high;
+        }
 
-        document
-            .getElementById("medium-count")
-            .textContent =
-            summary.medium;
+        if (mediumCount) {
+            mediumCount.textContent =
+                summary.medium;
+        }
 
-
-        document
-            .getElementById("low-count")
-            .textContent =
-            summary.low;
+        if (lowCount) {
+            lowCount.textContent =
+                summary.low;
+        }
 
 
         // Apply colors
+
         applySecuritySummaryStyles();
 
 
@@ -497,6 +519,11 @@ async function loadSecurityLogs() {
             document.getElementById(
                 "security-log-table"
             );
+
+
+        if (!table) {
+            return;
+        }
 
 
         table.innerHTML = "";
@@ -589,13 +616,362 @@ async function loadSecurityLogs() {
             );
 
 
-        table.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    Unable to load security logs.
-                </td>
-            </tr>
-        `;
+        if (table) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        Unable to load security logs.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+}
+
+
+// ======================================================
+// 6.8 - CREATE ALERT NOTIFICATION CONTAINER
+// ======================================================
+
+function createAlertNotificationContainer() {
+
+    let container =
+        document.getElementById(
+            "alert-notification-container"
+        );
+
+    if (container) {
+        return container;
+    }
+
+
+    container =
+        document.createElement("section");
+
+    container.id =
+        "alert-notification-container";
+
+
+    container.style.marginBottom =
+        "20px";
+
+
+    container.style.display =
+        "flex";
+
+
+    container.style.flexDirection =
+        "column";
+
+
+    container.style.gap =
+        "10px";
+
+
+    const mainContent =
+        document.querySelector(
+            ".main-content"
+        );
+
+
+    const activeAlertsPanel =
+        document.querySelector(
+            ".logs-panel"
+        );
+
+
+    if (mainContent && activeAlertsPanel) {
+
+        mainContent.insertBefore(
+            container,
+            activeAlertsPanel
+        );
+
+    }
+
+    else if (mainContent) {
+
+        mainContent.appendChild(
+            container
+        );
+
+    }
+
+
+    return container;
+
+}
+
+
+// ======================================================
+// 6.8 - CREATE ALERT NOTIFICATION CARD
+// ======================================================
+
+function createAlertNotification(alert) {
+
+    const risk =
+        String(
+            alert.risk || "LOW"
+        ).toUpperCase();
+
+
+    let borderColor =
+        "#16a34a";
+
+
+    let backgroundColor =
+        "#f0fdf4";
+
+
+    let icon =
+        "✓";
+
+
+    if (risk === "MEDIUM") {
+
+        borderColor =
+            "#ca8a04";
+
+        backgroundColor =
+            "#fefce8";
+
+        icon =
+            "⚠";
+
+    }
+
+
+    else if (risk === "HIGH") {
+
+        borderColor =
+            "#ea580c";
+
+        backgroundColor =
+            "#fff7ed";
+
+        icon =
+            "⚠";
+
+    }
+
+
+    else if (risk === "CRITICAL") {
+
+        borderColor =
+            "#dc2626";
+
+        backgroundColor =
+            "#fef2f2";
+
+        icon =
+            "🔴";
+
+    }
+
+
+    const notification =
+        document.createElement("div");
+
+
+    notification.className =
+        "cloudshield-alert-notification";
+
+
+    notification.style.background =
+        backgroundColor;
+
+
+    notification.style.borderLeft =
+        `5px solid ${borderColor}`;
+
+
+    notification.style.borderRadius =
+        "8px";
+
+
+    notification.style.padding =
+        "16px 18px";
+
+
+    notification.style.boxShadow =
+        "0 2px 8px rgba(0,0,0,0.08)";
+
+
+    notification.style.position =
+        "relative";
+
+
+    notification.innerHTML = `
+
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:flex-start;
+                gap:15px;
+            "
+        >
+
+            <div>
+
+                <div
+                    style="
+                        font-size:14px;
+                        font-weight:700;
+                        color:${borderColor};
+                        margin-bottom:6px;
+                    "
+                >
+                    ${icon} ${risk} SECURITY ALERT
+                </div>
+
+
+                <div
+                    style="
+                        font-size:14px;
+                        font-weight:600;
+                        color:#111827;
+                        margin-bottom:7px;
+                    "
+                >
+                    ${alert.message}
+                </div>
+
+
+                <div
+                    style="
+                        font-size:12px;
+                        color:#6b7280;
+                    "
+                >
+                    Source: ${alert.source}
+                    &nbsp; | &nbsp;
+                    Status: ${alert.status}
+                    &nbsp; | &nbsp;
+                    ${formatTime(alert.timestamp)}
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="close-alert-button"
+                aria-label="Close alert"
+                style="
+                    border:none;
+                    background:transparent;
+                    font-size:18px;
+                    cursor:pointer;
+                    color:#6b7280;
+                    padding:0;
+                "
+            >
+                ×
+            </button>
+
+        </div>
+
+    `;
+
+
+    const closeButton =
+        notification.querySelector(
+            ".close-alert-button"
+        );
+
+
+    closeButton.addEventListener(
+        "click",
+        () => {
+
+            notification.remove();
+
+        }
+    );
+
+
+    return notification;
+
+}
+
+
+// ======================================================
+// 6.8 - LOAD ALERT NOTIFICATIONS
+// ======================================================
+
+async function loadAlertNotifications() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/alerts`
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Alerts API request failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const alerts =
+            data.alerts || [];
+
+
+        const container =
+            createAlertNotificationContainer();
+
+
+        container.innerHTML = "";
+
+
+        if (alerts.length === 0) {
+
+            return;
+
+        }
+
+
+        // Show latest 3 alerts
+
+        alerts
+            .slice(0, 3)
+            .forEach(alert => {
+
+                const notification =
+                    createAlertNotification(
+                        alert
+                    );
+
+
+                container.appendChild(
+                    notification
+                );
+
+            });
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Alert notification error:",
+            error
+        );
 
     }
 
@@ -657,30 +1033,51 @@ async function loadDashboardData() {
         // DISPLAY CPU
         // ==================================================
 
-        document
-            .getElementById("cpu-value")
-            .textContent =
-            `${cpu.toFixed(1)}%`;
+        const cpuElement =
+            document.getElementById(
+                "cpu-value"
+            );
+
+        if (cpuElement) {
+
+            cpuElement.textContent =
+                `${cpu.toFixed(1)}%`;
+
+        }
 
 
         // ==================================================
         // DISPLAY MEMORY
         // ==================================================
 
-        document
-            .getElementById("memory-value")
-            .textContent =
-            `${memory.toFixed(1)}%`;
+        const memoryElement =
+            document.getElementById(
+                "memory-value"
+            );
+
+        if (memoryElement) {
+
+            memoryElement.textContent =
+                `${memory.toFixed(1)}%`;
+
+        }
 
 
         // ==================================================
         // DISPLAY DISK
         // ==================================================
 
-        document
-            .getElementById("disk-value")
-            .textContent =
-            `${disk.toFixed(1)}%`;
+        const diskElement =
+            document.getElementById(
+                "disk-value"
+            );
+
+        if (diskElement) {
+
+            diskElement.textContent =
+                `${disk.toFixed(1)}%`;
+
+        }
 
 
         // ==================================================
@@ -720,48 +1117,58 @@ async function loadDashboardData() {
             );
 
 
-        if (aiResult.anomaly) {
+        if (aiStatus) {
 
-            aiStatus.textContent =
-                "Anomaly Detected";
+            if (aiResult.anomaly) {
 
-        }
+                aiStatus.textContent =
+                    "Anomaly Detected";
 
-        else {
+            }
 
-            aiStatus.textContent =
-                "System Normal";
+            else {
 
-        }
+                aiStatus.textContent =
+                    "System Normal";
 
-
-        aiMessage.textContent =
-            aiResult.message;
+            }
 
 
-        if (
-            aiResult.anomaly_score !== undefined
-        ) {
-
-            anomalyScore.textContent =
-                aiResult.anomaly_score;
-
-        }
-
-        else {
-
-            anomalyScore.textContent =
-                "--";
+            applyAIStatusStyle(
+                aiStatus,
+                aiResult.anomaly
+            );
 
         }
 
 
-        // Apply AI color
+        if (aiMessage) {
 
-        applyAIStatusStyle(
-            aiStatus,
-            aiResult.anomaly
-        );
+            aiMessage.textContent =
+                aiResult.message;
+
+        }
+
+
+        if (anomalyScore) {
+
+            if (
+                aiResult.anomaly_score !== undefined
+            ) {
+
+                anomalyScore.textContent =
+                    aiResult.anomaly_score;
+
+            }
+
+            else {
+
+                anomalyScore.textContent =
+                    "--";
+
+            }
+
+        }
 
 
         // ==================================================
@@ -778,14 +1185,18 @@ async function loadDashboardData() {
             );
 
 
-        riskElement.textContent =
-            overallRisk;
+        if (riskElement) {
+
+            riskElement.textContent =
+                overallRisk;
 
 
-        applyRiskStyle(
-            riskElement,
-            overallRisk
-        );
+            applyRiskStyle(
+                riskElement,
+                overallRisk
+            );
+
+        }
 
 
         // ==================================================
@@ -800,28 +1211,57 @@ async function loadDashboardData() {
             security.risk_summary;
 
 
-        document
-            .getElementById("critical-count")
-            .textContent =
-            summary.critical;
+        const criticalCount =
+            document.getElementById(
+                "critical-count"
+            );
+
+        const highCount =
+            document.getElementById(
+                "high-count"
+            );
+
+        const mediumCount =
+            document.getElementById(
+                "medium-count"
+            );
+
+        const lowCount =
+            document.getElementById(
+                "low-count"
+            );
 
 
-        document
-            .getElementById("high-count")
-            .textContent =
-            summary.high;
+        if (criticalCount) {
+
+            criticalCount.textContent =
+                summary.critical;
+
+        }
 
 
-        document
-            .getElementById("medium-count")
-            .textContent =
-            summary.medium;
+        if (highCount) {
+
+            highCount.textContent =
+                summary.high;
+
+        }
 
 
-        document
-            .getElementById("low-count")
-            .textContent =
-            summary.low;
+        if (mediumCount) {
+
+            mediumCount.textContent =
+                summary.medium;
+
+        }
+
+
+        if (lowCount) {
+
+            lowCount.textContent =
+                summary.low;
+
+        }
 
 
         // Apply security summary colors
@@ -846,40 +1286,67 @@ async function loadDashboardData() {
         );
 
 
-        document
-            .getElementById("cpu-value")
-            .textContent =
-            "Error";
+        const cpuElement =
+            document.getElementById(
+                "cpu-value"
+            );
+
+        const memoryElement =
+            document.getElementById(
+                "memory-value"
+            );
+
+        const diskElement =
+            document.getElementById(
+                "disk-value"
+            );
+
+        const riskElement =
+            document.getElementById(
+                "risk-value"
+            );
+
+        const aiStatus =
+            document.getElementById(
+                "ai-status"
+            );
+
+        const aiMessage =
+            document.getElementById(
+                "ai-message"
+            );
 
 
-        document
-            .getElementById("memory-value")
-            .textContent =
-            "Error";
+        if (cpuElement) {
+            cpuElement.textContent = "Error";
+        }
 
 
-        document
-            .getElementById("disk-value")
-            .textContent =
-            "Error";
+        if (memoryElement) {
+            memoryElement.textContent = "Error";
+        }
 
 
-        document
-            .getElementById("risk-value")
-            .textContent =
-            "ERROR";
+        if (diskElement) {
+            diskElement.textContent = "Error";
+        }
 
 
-        document
-            .getElementById("ai-status")
-            .textContent =
-            "Backend unavailable";
+        if (riskElement) {
+            riskElement.textContent = "ERROR";
+        }
 
 
-        document
-            .getElementById("ai-message")
-            .textContent =
-            "Unable to connect to CloudShield AI backend.";
+        if (aiStatus) {
+            aiStatus.textContent =
+                "Backend unavailable";
+        }
+
+
+        if (aiMessage) {
+            aiMessage.textContent =
+                "Unable to connect to CloudShield AI backend.";
+        }
 
     }
 
@@ -920,6 +1387,8 @@ document.addEventListener(
 
         loadDashboardData();
 
+        loadAlertNotifications();
+
     }
 );
 
@@ -932,6 +1401,14 @@ document.addEventListener(
 
 setInterval(
     loadDashboardData,
+    30000
+);
+
+
+// Alert notifications every 30 seconds
+
+setInterval(
+    loadAlertNotifications,
     30000
 );
 

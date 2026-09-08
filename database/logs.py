@@ -35,6 +35,19 @@ def create_database():
         )
     """)
 
+    # Security alerts
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            alert_type TEXT,
+            risk TEXT,
+            message TEXT,
+            source TEXT,
+            status TEXT
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -102,6 +115,7 @@ def get_security_logs():
     logs = []
 
     for row in rows:
+
         logs.append({
             "id": row[0],
             "time": row[1],
@@ -111,3 +125,87 @@ def get_security_logs():
         })
 
     return logs
+
+
+def save_alert(alert):
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO alerts
+        (timestamp, alert_type, risk, message, source, status)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        alert["timestamp"],
+        alert["alert_type"],
+        alert["risk"],
+        alert["message"],
+        alert["source"],
+        alert["status"]
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_alerts():
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, timestamp, alert_type, risk, message, source, status
+        FROM alerts
+        ORDER BY id DESC
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    alerts = []
+
+    for row in rows:
+
+        alerts.append({
+            "id": row[0],
+            "timestamp": row[1],
+            "alert_type": row[2],
+            "risk": row[3],
+            "message": row[4],
+            "source": row[5],
+            "status": row[6]
+        })
+
+    return alerts
+
+
+def update_alert_status(alert_id, status):
+
+    allowed_statuses = [
+        "NEW",
+        "ACKNOWLEDGED",
+        "RESOLVED"
+    ]
+
+    status = status.upper()
+
+    if status not in allowed_statuses:
+        return False
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE alerts
+        SET status = ?
+        WHERE id = ?
+    """, (status, alert_id))
+
+    updated_rows = cursor.rowcount
+
+    conn.commit()
+    conn.close()
+
+    return updated_rows > 0

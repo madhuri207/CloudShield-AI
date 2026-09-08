@@ -8,7 +8,10 @@ from database.logs import (
     save_metrics,
     save_security_event,
     create_database,
-    get_security_logs
+    get_security_logs,
+    save_alert,
+    get_alerts,
+    update_alert_status
 )
 
 from ai.anomaly_detector import detect_anomaly
@@ -22,6 +25,8 @@ from security.log_analyzer import (
 
 from security.risk_engine import calculate_overall_risk
 
+from security.alert_manager import generate_alert
+
 
 app = FastAPI(
     title="CloudShield AI",
@@ -29,10 +34,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-
-# =========================================================
-# CORS CONFIGURATION
-# =========================================================
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,16 +44,8 @@ app.add_middleware(
 )
 
 
-# =========================================================
-# DATABASE INITIALIZATION
-# =========================================================
-
 create_database()
 
-
-# =========================================================
-# INPUT MODELS
-# =========================================================
 
 class SecurityEvent(BaseModel):
     event_type: str
@@ -63,13 +56,12 @@ class SecurityLog(BaseModel):
     log_message: str
 
 
-# =========================================================
-# ROOT ENDPOINT
-# =========================================================
+class AlertStatusUpdate(BaseModel):
+    status: str
+
 
 @app.get("/")
 def root():
-
     return {
         "project": "CloudShield AI",
         "status": "running",
@@ -77,47 +69,34 @@ def root():
     }
 
 
-# =========================================================
-# HEALTH CHECK
-# =========================================================
-
 @app.get("/health")
 def health_check():
-
     return {
         "status": "healthy",
         "service": "CloudShield AI backend"
     }
 
 
-# =========================================================
-# SYSTEM MONITORING
-# =========================================================
-
 @app.get("/monitoring")
 def monitoring():
 
-    # Collect system metrics
     metrics = get_system_metrics()
 
     cpu = metrics["cpu_percent"]
     memory = metrics["memory_percent"]
     disk = metrics["disk_percent"]
 
-    # Threshold alert
     if cpu > 80 or memory > 80 or disk > 80:
         alert = "HIGH"
     else:
         alert = "NORMAL"
 
-    # AI anomaly detection
     ai_result = detect_anomaly(
         cpu,
         memory,
         disk
     )
 
-    # Save monitoring metrics
     save_metrics(
         metrics["timestamp"],
         cpu,
@@ -126,17 +105,28 @@ def monitoring():
         alert
     )
 
+    ai_alert = None
+
+    if ai_result.get("anomaly") is True:
+
+        ai_alert = generate_alert(
+            alert_type="AI_ANOMALY",
+            risk=ai_result.get("risk", "HIGH"),
+            message="Abnormal system activity detected by AI anomaly detection",
+            source="AI Monitoring"
+        )
+
+        if ai_alert:
+            save_alert(ai_alert)
+
     return {
         "status": "success",
         "metrics": metrics,
         "alert": alert,
-        "ai_result": ai_result
+        "ai_result": ai_result,
+        "ai_alert": ai_alert
     }
 
-
-# =========================================================
-# SECURITY TEST
-# =========================================================
 
 @app.get("/security-test")
 def security_test(
@@ -144,13 +134,11 @@ def security_test(
     failed_attempts: int = 0
 ):
 
-    # Analyze security event
     security_result = analyze_security_event(
         event_type=event_type,
         failed_attempts=failed_attempts
     )
 
-    # Save security event
     save_security_event(
         security_result["timestamp"],
         security_result["event_type"],
@@ -158,26 +146,31 @@ def security_test(
         security_result["message"]
     )
 
+    security_alert = generate_alert(
+        alert_type=security_result["event_type"],
+        risk=security_result["risk"],
+        message=security_result["message"],
+        source="Security Monitoring"
+    )
+
+    if security_alert:
+        save_alert(security_alert)
+
     return {
         "status": "success",
-        "security_analysis": security_result
+        "security_analysis": security_result,
+        "security_alert": security_alert
     }
 
-
-# =========================================================
-# SECURITY EVENT API
-# =========================================================
 
 @app.post("/security-events")
 def create_security_event(event: SecurityEvent):
 
-    # Analyze received security event
     security_result = analyze_security_event(
         event_type=event.event_type,
         failed_attempts=event.failed_attempts
     )
 
-    # Save security event
     save_security_event(
         security_result["timestamp"],
         security_result["event_type"],
@@ -185,24 +178,29 @@ def create_security_event(event: SecurityEvent):
         security_result["message"]
     )
 
+    security_alert = generate_alert(
+        alert_type=security_result["event_type"],
+        risk=security_result["risk"],
+        message=security_result["message"],
+        source="Security Monitoring"
+    )
+
+    if security_alert:
+        save_alert(security_alert)
+
     return {
         "status": "success",
         "message": "Security event processed successfully",
-        "security_analysis": security_result
+        "security_analysis": security_result,
+        "security_alert": security_alert
     }
 
-
-# =========================================================
-# SECURITY LOGS
-# =========================================================
 
 @app.get("/security-logs")
 def security_logs():
 
-    # Get saved security events
     logs = get_security_logs()
 
-    # Analyze all security logs
     analysis = analyze_security_logs(logs)
 
     return {
@@ -213,34 +211,74 @@ def security_logs():
     }
 
 
-# =========================================================
-# SECURITY OVERVIEW
-# =========================================================
+@app.get("/alerts")
+def alerts():
+
+    alert_list = get_alerts()
+
+    return {
+        "status": "success",
+        "total_alerts": len(alert_list),
+        "alerts": alert_list
+    }
+
+
+@app.put("/alerts/{alert_id}/status")
+def change_alert_status(
+    alert_id: int,
+    alert_update: AlertStatusUpdate
+):
+
+    status = alert_update.status.upper()
+
+    if status not in [
+        "NEW",
+        "ACKNOWLEDGED",
+        "RESOLVED"
+    ]:
+        return {
+            "status": "error",
+            "message": "Invalid alert status"
+        }
+
+    updated = update_alert_status(
+        alert_id,
+        status
+    )
+
+    if not updated:
+        return {
+            "status": "error",
+            "message": "Alert not found"
+        }
+
+    return {
+        "status": "success",
+        "message": "Alert status updated successfully",
+        "alert_id": alert_id,
+        "new_status": status
+    }
+
 
 @app.get("/security-overview")
 def security_overview():
 
-    # Collect current system metrics
     metrics = get_system_metrics()
 
     cpu = metrics["cpu_percent"]
     memory = metrics["memory_percent"]
     disk = metrics["disk_percent"]
 
-    # Analyze current system behaviour
     system_result = detect_anomaly(
         cpu,
         memory,
         disk
     )
 
-    # Get security history
     logs = get_security_logs()
 
-    # Analyze security history
     security_result = analyze_security_logs(logs)
 
-    # Calculate combined overall risk
     overall_result = calculate_overall_risk(
         system_result,
         security_result
@@ -248,31 +286,22 @@ def security_overview():
 
     return {
         "status": "success",
-
         "system": {
             "metrics": metrics,
             "analysis": system_result
         },
-
         "security": security_result,
-
         "overall_risk": overall_result
     }
 
 
-# =========================================================
-# RAW SECURITY LOG ANALYSIS
-# =========================================================
-
 @app.post("/analyze-log")
 def analyze_security_log(log: SecurityLog):
 
-    # Analyze submitted security log
     result = analyze_log(
         log.log_message
     )
 
-    # Save analyzed security event
     save_security_event(
         result["timestamp"],
         result["event_type"],
@@ -280,8 +309,19 @@ def analyze_security_log(log: SecurityLog):
         result["message"]
     )
 
+    security_alert = generate_alert(
+        alert_type=result["event_type"],
+        risk=result["risk"],
+        message=result["message"],
+        source="Log Analysis"
+    )
+
+    if security_alert:
+        save_alert(security_alert)
+
     return {
         "status": "success",
         "message": "Security log analyzed and saved successfully",
-        "analysis": result
+        "analysis": result,
+        "security_alert": security_alert
     }
